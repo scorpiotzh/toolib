@@ -34,3 +34,11 @@ func TestJsonString(t *testing.T) {
 	fmt.Println(JsonString(tj.C))
 	fmt.Println(JsonString(tj.D))
 }
+
+func TestNewGormDataBase(t *testing.T) {
+	db, err := NewGormDataBase("127.0.0.1:3306", "root", "tzh123456", "das_db", 100, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(db)
+}
