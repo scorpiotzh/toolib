@@ -42,3 +42,11 @@ func TestNewGormDataBase(t *testing.T) {
 	}
 	fmt.Println(db)
 }
+
+func TestNewRedisClient(t *testing.T) {
+	red, err := NewRedisClient("127.0.0.1:6379", "", 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(red)
+}
