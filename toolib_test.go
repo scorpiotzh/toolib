@@ -50,3 +50,17 @@ func TestNewRedisClient(t *testing.T) {
 	}
 	fmt.Println(red)
 }
+
+func TestUnmarshalYamlFile(t *testing.T) {
+	type YamlTest struct {
+		Server struct {
+			Port string `json:"port" yaml:"port"`
+		} `json:"server" yaml:"server"`
+	}
+	var yt YamlTest
+	err := UnmarshalYamlFile("test.yaml", &yt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(JsonString(yt))
+}

@@ -7,4 +7,5 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/onsi/gomega v1.14.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
