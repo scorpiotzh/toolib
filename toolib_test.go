@@ -71,3 +71,11 @@ func TestAllowOriginFunc(t *testing.T) {
 	fmt.Println(AllowOriginFunc("http://test.com"))
 	fmt.Println(AllowOriginFunc("https://a.test.com"))
 }
+
+func TestPage(t *testing.T) {
+	p := Pagination{
+		Page: 2,
+		Size: 50,
+	}
+	fmt.Println(p.GetLimit(), p.GetOffset())
+}
