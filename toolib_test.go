@@ -79,3 +79,40 @@ func TestPage(t *testing.T) {
 	}
 	fmt.Println(p.GetLimit(), p.GetOffset())
 }
+
+func TestAddFileWatcher(t *testing.T) {
+	exit := make(chan struct{})
+	type YamlTest struct {
+		Server struct {
+			Port string `json:"port" yaml:"port"`
+		} `json:"server" yaml:"server"`
+	}
+	var yt YamlTest
+	err := UnmarshalYamlFile("test.yaml", &yt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(JsonString(yt))
+	//
+	w, err := AddFileWatcher("test.yaml", func() {
+		err := UnmarshalYamlFile("test.yaml", &yt)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(JsonString(yt))
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	//
+	ExitMonitoring(func(sig os.Signal) {
+		if w != nil {
+			fmt.Println("close")
+			w.Close()
+		}
+		fmt.Println("sys exit ok ... ")
+		exit <- struct{}{}
+	})
+	//
+	<-exit
+}
