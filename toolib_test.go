@@ -64,3 +64,10 @@ func TestUnmarshalYamlFile(t *testing.T) {
 	}
 	fmt.Println(JsonString(yt))
 }
+
+func TestAllowOriginFunc(t *testing.T) {
+	fmt.Println(AllowOriginFunc("http://127.0.0.1:"))
+	fmt.Println(AllowOriginFunc("http://localhost:80"))
+	fmt.Println(AllowOriginFunc("http://test.com"))
+	fmt.Println(AllowOriginFunc("https://a.test.com"))
+}
