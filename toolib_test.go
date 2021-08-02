@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestExitMonitoring(t *testing.T) {
@@ -115,4 +116,8 @@ func TestAddFileWatcher(t *testing.T) {
 	})
 	//
 	<-exit
+}
+
+func TestTimeFormat(t *testing.T) {
+	fmt.Println(TimeFormat(time.Now()))
 }
