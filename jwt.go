@@ -7,7 +7,7 @@ import (
 )
 
 func JwtString(jwtKey string, expired time.Duration) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+	return JwtNewWithClaims(jwt.StandardClaims{
 		Audience:  "",                                             //用户
 		ExpiresAt: time.Now().Unix() + int64(expired/time.Second), //到期时间
 		Id:        "",                                             //jwt标识
@@ -15,8 +15,11 @@ func JwtString(jwtKey string, expired time.Duration) (string, error) {
 		Issuer:    "",                                             //发行人
 		NotBefore: time.Now().Unix(),                              //在此之前不可用
 		Subject:   "",                                             //主题
-	})
+	}, jwtKey)
+}
 
+func JwtNewWithClaims(claims jwt.StandardClaims, jwtKey string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(jwtKey))
 }
 
