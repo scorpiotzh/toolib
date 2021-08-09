@@ -121,3 +121,25 @@ func TestAddFileWatcher(t *testing.T) {
 func TestTimeFormat(t *testing.T) {
 	fmt.Println(TimeFormat(time.Now()))
 }
+
+func TestJwtString(t *testing.T) {
+	jwtKey := "toolib"
+	token, err := JwtString(jwtKey, time.Second*5)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(token)
+	claims, err := JwtVerify(token, jwtKey)
+	if err != nil {
+		t.Fatal(err)
+	} else {
+		fmt.Println("OK", claims)
+	}
+	time.Sleep(time.Second * 6)
+	claims, err = JwtVerify(token, jwtKey)
+	if err != nil {
+		t.Fatal(err)
+	} else {
+		fmt.Println("OK", claims)
+	}
+}
