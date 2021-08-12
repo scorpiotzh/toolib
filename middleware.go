@@ -32,6 +32,7 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 			return blw.body.String(), nil
 		}
 		res, err := CacheByRedis(red, key, dataExpiration, lockExpiration, updateExpiration, cacheHandle)
+		fmt.Println("CacheByRedis res:", res, err)
 		if err != nil {
 			fmt.Println("CacheByRedis err:", err.Error())
 			c.AbortWithStatusJSON(http.StatusOK, err.Error())
@@ -51,6 +52,7 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 		if exi, err := red.Exists(updateExpirationKey).Result(); err != nil {
 			return "", err
 		} else if exi == 0 { //过期判断当前分布式锁是否被占用
+			fmt.Println("CacheByRedis is expired:", key)
 			if ok, err := red.SetNX(lockExpirationKey, "", lockExpiration).Result(); err != nil {
 				return dataStr, nil
 			} else if !ok {
@@ -71,6 +73,7 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 			return dataStr, nil
 		}
 	} else if err == redis.Nil { // 不存在查询数据库，写缓存
+		fmt.Println("CacheByRedis is nil:", key)
 		if dataStr, err = cacheHandle(); err != nil {
 			return "", err
 		} else if err = red.Set(key, dataStr, dataExpiration).Err(); err != nil {
