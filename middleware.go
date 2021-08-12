@@ -21,6 +21,7 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 			blw := &bodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 			c.Writer = blw
 			c.Next()
+			c.Writer = blw.ResponseWriter
 			statusCode := c.Writer.Status()
 			// 不缓存失败的请求
 			if statusCode != http.StatusOK {
