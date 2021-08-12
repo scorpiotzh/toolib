@@ -39,9 +39,7 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 			c.AbortWithStatusJSON(http.StatusOK, err.Error())
 		} else {
 			var respMap map[string]interface{}
-			if err = json.Unmarshal([]byte(res), &respMap); err != nil {
-				fmt.Println("Unmarshal err:", err.Error())
-			}
+			_ = json.Unmarshal([]byte(res), &respMap)
 			c.AbortWithStatusJSON(http.StatusOK, respMap)
 		}
 	}
