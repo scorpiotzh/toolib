@@ -36,7 +36,9 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 			fmt.Println("CacheByRedis err:", err.Error())
 			c.AbortWithStatusJSON(http.StatusOK, err.Error())
 		} else {
-			c.AbortWithStatusJSON(http.StatusOK, res)
+			var respMap map[string]interface{}
+			_ = json.Unmarshal([]byte(res), &respMap)
+			c.AbortWithStatusJSON(http.StatusOK, respMap)
 		}
 	}
 }
