@@ -67,7 +67,7 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 				}
 			}
 		} else { //没过期返回数据
-			fmt.Println("cacheByRedis OK:", key)
+			fmt.Println("CacheByRedis OK:", key)
 			return dataStr, nil
 		}
 	} else if err == redis.Nil { // 不存在查询数据库，写缓存
