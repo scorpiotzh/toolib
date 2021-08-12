@@ -18,7 +18,7 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 			key = getCacheKeyByPost(c)
 		}
 		cacheHandle := func() (string, error) {
-			blw := &bufferedWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+			blw := &bodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 			c.Writer = blw
 			c.Next()
 			statusCode := c.Writer.Status()
@@ -34,6 +34,7 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 		res, err := CacheByRedis(red, key, dataExpiration, lockExpiration, updateExpiration, cacheHandle)
 		if err != nil {
 			fmt.Println("CacheByRedis err:", err.Error())
+			c.AbortWithStatusJSON(http.StatusOK, err.Error())
 		} else {
 			c.AbortWithStatusJSON(http.StatusOK, res)
 		}
@@ -95,12 +96,11 @@ func getCacheKeyByPost(c *gin.Context) string {
 	return Md5Hash(append(urlBytes, bodyBytes...))
 }
 
-type bufferedWriter struct {
+type bodyWriter struct {
 	gin.ResponseWriter
 	body *bytes.Buffer
 }
 
-func (w bufferedWriter) Write(b []byte) (int, error) {
-	w.body.Write(b)
-	return w.ResponseWriter.Write(b)
+func (b bodyWriter) Write(bys []byte) (int, error) {
+	return b.body.Write(bys)
 }
