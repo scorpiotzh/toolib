@@ -8,13 +8,21 @@ import (
 
 func JwtString(jwtKey string, expired time.Duration) (string, error) {
 	return JwtNewWithClaims(jwt.StandardClaims{
-		Audience:  "",                                             //用户
-		ExpiresAt: time.Now().Unix() + int64(expired/time.Second), //到期时间
-		Id:        "",                                             //jwt标识
-		IssuedAt:  time.Now().Unix(),                              //发布时间
-		Issuer:    "",                                             //发行人
-		NotBefore: time.Now().Unix(),                              //在此之前不可用
-		Subject:   "",                                             //主题
+		ExpiresAt: time.Now().Add(expired).Unix(), //到期时间
+		IssuedAt:  time.Now().Unix(),              //发布时间
+		NotBefore: time.Now().Unix(),              //在此之前不可用
+	}, jwtKey)
+}
+
+func JwtSimple(expired time.Duration, auc, id, issuer, subject, jwtKey string) (string, error) {
+	return JwtNewWithClaims(jwt.StandardClaims{
+		Audience:  auc,                            //用户
+		ExpiresAt: time.Now().Add(expired).Unix(), //到期时间
+		Id:        id,                             //jwt标识
+		IssuedAt:  time.Now().Unix(),              //发布时间
+		Issuer:    issuer,                         //发行人
+		NotBefore: time.Now().Unix(),              //在此之前不可用
+		Subject:   subject,                        //主题
 	}, jwtKey)
 }
 
