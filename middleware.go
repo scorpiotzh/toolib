@@ -13,11 +13,11 @@ import (
 
 type MiddlewareCacheByRedisRespHandle func(*gin.Context, string, error)
 
-func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareCacheByRedisRespHandle) gin.HandlerFunc {
+func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareCacheByRedisRespHandle) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		key := getCacheKeyByGet(c)
+		key := getCacheKeyByGet(c, isCookie)
 		if c.Request.Method == http.MethodPost {
-			key = getCacheKeyByPost(c)
+			key = getCacheKeyByPost(c, isCookie)
 		}
 		cacheHandle := func() (string, error) {
 			blw := &bodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -93,18 +93,27 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 	}
 }
 
-func getCacheKeyByGet(c *gin.Context) string {
-	cook, _ := json.Marshal(c.Request.Cookies()) //加入cookie的部分
-	urlBytes := append([]byte(c.Request.URL.String()), cook...)
-	return Md5Hash(urlBytes)
+func getCacheKeyByGet(c *gin.Context, isCookie bool) string {
+	if isCookie {
+		cook, _ := json.Marshal(c.Request.Cookies()) //加入cookie的部分
+		urlBytes := append([]byte(c.Request.URL.String()), cook...)
+		return Md5Hash(urlBytes)
+	}
+	return Md5Hash([]byte(c.Request.URL.String()))
 }
 
-func getCacheKeyByPost(c *gin.Context) string {
+func getCacheKeyByPost(c *gin.Context, isCookie bool) string {
+	if isCookie {
+		bodyBytes, _ := c.GetRawData()
+		cook, _ := json.Marshal(c.Request.Cookies())
+		urlBytes := append([]byte(c.Request.URL.String()), cook...)
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) // 关键点
+		return Md5Hash(append(urlBytes, bodyBytes...))
+	}
 	bodyBytes, _ := c.GetRawData()
-	cook, _ := json.Marshal(c.Request.Cookies())
-	urlBytes := append([]byte(c.Request.URL.String()), cook...)
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) // 关键点
-	return Md5Hash(append(urlBytes, bodyBytes...))
+	return Md5Hash(append([]byte(c.Request.URL.String()), bodyBytes...))
+
 }
 
 type bodyWriter struct {
