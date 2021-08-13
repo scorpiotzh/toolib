@@ -139,9 +139,11 @@ func MiddlewareJwtCheck(JwtAuthorization, JwtKey string, claimsCheck JwtClaimsCh
 		if claims, err := JwtVerify(token, JwtKey); err != nil {
 			respHandle(ctx, "", err)
 			return
-		} else if err = claimsCheck(ctx, claims); err != nil {
-			respHandle(ctx, "", err)
-			return
+		} else if claimsCheck != nil {
+			if err = claimsCheck(ctx, claims); err != nil {
+				respHandle(ctx, "", err)
+				return
+			}
 		}
 		ctx.Next()
 	}
