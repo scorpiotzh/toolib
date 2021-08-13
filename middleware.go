@@ -11,7 +11,9 @@ import (
 	"time"
 )
 
-func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, updateExpiration time.Duration) gin.HandlerFunc {
+type MiddlewareCacheByRedisRespHandle func(*gin.Context, string, error)
+
+func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareCacheByRedisRespHandle) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := getCacheKeyByGet(c)
 		if c.Request.Method == http.MethodPost {
@@ -33,14 +35,17 @@ func MiddlewareCacheByRedis(red *redis.Client, dataExpiration, lockExpiration, u
 			return blw.body.String(), nil
 		}
 		res, err := CacheByRedis(red, key, dataExpiration, lockExpiration, updateExpiration, cacheHandle)
-		fmt.Println("CacheByRedis res:", res, err)
-		if err != nil {
-			fmt.Println("CacheByRedis err:", err.Error())
-			c.AbortWithStatusJSON(http.StatusOK, err.Error())
+		if respHandle != nil {
+			respHandle(c, res, err)
 		} else {
-			var respMap map[string]interface{}
-			_ = json.Unmarshal([]byte(res), &respMap)
-			c.AbortWithStatusJSON(http.StatusOK, respMap)
+			if err != nil {
+				fmt.Println("CacheByRedis err:", err.Error())
+				c.AbortWithStatusJSON(http.StatusOK, err.Error())
+			} else {
+				var respMap map[string]interface{}
+				_ = json.Unmarshal([]byte(res), &respMap)
+				c.AbortWithStatusJSON(http.StatusOK, respMap)
+			}
 		}
 	}
 }
