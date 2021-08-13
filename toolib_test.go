@@ -124,7 +124,7 @@ func TestTimeFormat(t *testing.T) {
 
 func TestJwtString(t *testing.T) {
 	jwtKey := "toolib"
-	token, err := JwtString(jwtKey, time.Second*6)
+	token, err := JwtSimple(time.Second*6, "111", "", "", "", jwtKey)
 	if err != nil {
 		t.Fatal(err)
 	}

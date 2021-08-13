@@ -140,7 +140,7 @@ func MiddlewareJwtCheck(JwtAuthorization, JwtKey string, claimsCheck JwtClaimsCh
 			respHandle(ctx, "", err)
 			return
 		} else if claimsCheck != nil {
-			if err = claimsCheck(ctx, claims); err != nil {
+			if err = claimsCheck(ctx, claims, token); err != nil {
 				respHandle(ctx, "", err)
 				return
 			}
@@ -149,4 +149,4 @@ func MiddlewareJwtCheck(JwtAuthorization, JwtKey string, claimsCheck JwtClaimsCh
 	}
 }
 
-type JwtClaimsCheck func(*gin.Context, jwt.MapClaims) error
+type JwtClaimsCheck func(*gin.Context, jwt.MapClaims, string) error
