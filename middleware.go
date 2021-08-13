@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"io/ioutil"
@@ -11,9 +12,9 @@ import (
 	"time"
 )
 
-type MiddlewareCacheByRedisRespHandle func(*gin.Context, string, error)
+type MiddlewareRespHandle func(*gin.Context, string, error)
 
-func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareCacheByRedisRespHandle) gin.HandlerFunc {
+func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareRespHandle) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := getCacheKeyByGet(c, isCookie)
 		if c.Request.Method == http.MethodPost {
@@ -124,3 +125,26 @@ type bodyWriter struct {
 func (b bodyWriter) Write(bys []byte) (int, error) {
 	return b.body.Write(bys)
 }
+
+// ============================ JWT
+
+func MiddlewareJwtCheck(JwtAuthorization, JwtKey string, claimsCheck JwtClaimsCheck, respHandle MiddlewareRespHandle) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		cookie, err := ctx.Request.Cookie(JwtAuthorization)
+		if err != nil {
+			respHandle(ctx, "", err)
+			return
+		}
+		token := cookie.Value
+		if claims, err := JwtVerify(token, JwtKey); err != nil {
+			respHandle(ctx, "", err)
+			return
+		} else if err = claimsCheck(ctx, claims); err != nil {
+			respHandle(ctx, "", err)
+			return
+		}
+		ctx.Next()
+	}
+}
+
+type JwtClaimsCheck func(*gin.Context, jwt.MapClaims) error
