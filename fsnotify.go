@@ -23,7 +23,7 @@ func AddFileWatcher(filePath string, handle func()) (*fsnotify.Watcher, error) {
 					return
 				}
 				log.Println("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
+				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Rename == fsnotify.Rename {
 					log.Println("modified file:", event.Name)
 					handle()
 				}
