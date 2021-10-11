@@ -16,6 +16,7 @@ type MiddlewareRespHandle func(*gin.Context, string, error)
 
 func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareRespHandle) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Println(c.Request.URL.Path)
 		key := getCacheKeyByGet(c, isCookie)
 		if c.Request.Method == http.MethodPost {
 			key = getCacheKeyByPost(c, isCookie)
