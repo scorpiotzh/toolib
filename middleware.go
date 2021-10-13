@@ -123,7 +123,8 @@ type bodyWriter struct {
 }
 
 func (b bodyWriter) Write(bys []byte) (int, error) {
-	return b.body.Write(bys)
+	b.body.Write(bys)
+	return b.ResponseWriter.Write(bys)
 }
 
 // ============================ JWT
