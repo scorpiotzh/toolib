@@ -25,7 +25,6 @@ func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lo
 			blw := &bodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 			c.Writer = blw
 			c.Next()
-			c.Writer = blw.ResponseWriter
 			statusCode := c.Writer.Status()
 			// 不缓存失败的请求
 			if statusCode != http.StatusOK {
@@ -43,7 +42,7 @@ func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lo
 			if err != nil {
 				fmt.Println("CacheByRedis err:", err.Error())
 				c.AbortWithStatusJSON(http.StatusOK, err.Error())
-			} else {
+			} else if res != "" {
 				var respMap map[string]interface{}
 				_ = json.Unmarshal([]byte(res), &respMap)
 				c.AbortWithStatusJSON(http.StatusOK, respMap)
@@ -73,7 +72,7 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 				} else {
 					_ = red.Set(updateExpirationKey, "", updateExpiration).Err()
 					_ = red.Expire(lockExpirationKey, time.Second*5).Err()
-					return dataStr, nil
+					return "", nil
 				}
 			}
 		} else { //没过期返回数据
@@ -88,7 +87,7 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 			return "", err
 		} else {
 			_ = red.Set(updateExpirationKey, "", updateExpiration).Err()
-			return dataStr, nil
+			return "", nil
 		}
 	} else {
 		return "", err

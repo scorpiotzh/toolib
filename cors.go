@@ -41,7 +41,8 @@ func MiddlewareCors() gin.HandlerFunc {
 		}
 		if method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
+		} else {
+			c.Next()
 		}
-		c.Next()
 	}
 }
