@@ -44,6 +44,14 @@ func TestNewGormDataBase(t *testing.T) {
 	fmt.Println(db)
 }
 
+func TestNewGormDB(t *testing.T) {
+	db, err := NewGormDataBase("127.0.0.1:3306", "root", "tzh123456", "das_db", 100, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(db)
+}
+
 func TestNewRedisClient(t *testing.T) {
 	red, err := NewRedisClient("127.0.0.1:6379", "", 0)
 	if err != nil {

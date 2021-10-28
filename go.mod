@@ -11,4 +11,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/onsi/gomega v1.14.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
+	gorm.io/driver/mysql v1.1.3
+	gorm.io/gorm v1.22.1
 )
