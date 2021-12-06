@@ -10,7 +10,6 @@ import (
 var AllowOriginList = []string{
 	`https?:\/\/127\.0\.0\.1:\d+`,
 	`https?:\/\/localhost:\d+`,
-	`https?:\/\/[^.]*\.test\.com`,
 }
 
 func AllowOriginFunc(origin string) bool {
