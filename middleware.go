@@ -16,7 +16,7 @@ type MiddlewareRespHandle func(*gin.Context, string, error)
 
 func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lockExpiration, updateExpiration time.Duration, respHandle MiddlewareRespHandle) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println(c.Request.URL.Path)
+		fmt.Println("url path:", c.Request.URL.Path)
 		if red == nil {
 			return
 		}
