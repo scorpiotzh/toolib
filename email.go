@@ -7,7 +7,7 @@ import (
 
 type EmailHelper struct {
 	Host           string
-	port           int
+	Port           int
 	From           string
 	SenderAddress  string
 	SenderPassword string
@@ -20,7 +20,7 @@ func (e *EmailHelper) SendEmail(subject, body string, toList ...string) error {
 	m.SetHeader("Content-Type", "text/html; charset=UTF-8")
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", body)
-	d := gomail.NewDialer(e.Host, e.port, e.SenderAddress, e.SenderPassword)
+	d := gomail.NewDialer(e.Host, e.Port, e.SenderAddress, e.SenderPassword)
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	return d.DialAndSend(m)
 }

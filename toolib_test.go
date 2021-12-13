@@ -157,7 +157,7 @@ func TestJwtString(t *testing.T) {
 func TestSendEmail(t *testing.T) {
 	eh := EmailHelper{
 		Host:           "smtpdm.aliyun.com",
-		port:           465,
+		Port:           465,
 		From:           "test",
 		SenderAddress:  "noreply@cctip.io",
 		SenderPassword: "",
