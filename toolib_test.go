@@ -153,3 +153,15 @@ func TestJwtString(t *testing.T) {
 	//	fmt.Println("OK", claims)
 	//}
 }
+
+func TestSendEmail(t *testing.T) {
+	eh := EmailHelper{
+		Host:           "smtpdm.aliyun.com",
+		port:           465,
+		From:           "test",
+		SenderAddress:  "noreply@cctip.io",
+		SenderPassword: "",
+	}
+	err := eh.SendEmail("test", "test \n 111", "duzhihongyi@gmail.com")
+	fmt.Println(err)
+}
