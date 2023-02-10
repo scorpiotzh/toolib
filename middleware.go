@@ -29,7 +29,7 @@ func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lo
 			c.Writer = blw
 			c.Next()
 			statusCode := c.Writer.Status()
-			// 不缓存失败的请求
+			// no cache failed req
 			if statusCode != http.StatusOK {
 				return "", fmt.Errorf("status code [%d]", statusCode)
 			}
@@ -57,15 +57,17 @@ func MiddlewareCacheByRedis(red *redis.Client, isCookie bool, dataExpiration, lo
 func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration, updateExpiration time.Duration, cacheHandle func() (string, error)) (string, error) {
 	updateExpirationKey := fmt.Sprintf("uek:%s", key)
 	lockExpirationKey := fmt.Sprintf("lek:%s", key)
-	// 查询缓存是否存在
-	if dataStr, err := red.Get(key).Result(); err == nil { // 存在，判断更新时间是否过期
+	// check cache is exist
+	if dataStr, err := red.Get(key).Result(); err == nil { // check update time is expired
 		if exi, err := red.Exists(updateExpirationKey).Result(); err != nil {
 			return "", err
-		} else if exi == 0 { //过期判断当前分布式锁是否被占用
+		} else if exi == 0 { // check lock
 			fmt.Println("CacheByRedis is expired:", key)
 			if ok, err := red.SetNX(lockExpirationKey, "", lockExpiration).Result(); err != nil {
+				fmt.Println("SetNX 1:", ok, err.Error())
 				return dataStr, nil
 			} else if !ok {
+				fmt.Println("SetNX 2:", ok)
 				return dataStr, nil
 			} else {
 				if dataStr, err = cacheHandle(); err != nil {
@@ -78,11 +80,11 @@ func CacheByRedis(red *redis.Client, key string, dataExpiration, lockExpiration,
 					return "", nil
 				}
 			}
-		} else { //没过期返回数据
+		} else { // not expired
 			fmt.Println("CacheByRedis OK:", key)
 			return dataStr, nil
 		}
-	} else if err == redis.Nil { // 不存在查询数据库，写缓存
+	} else if err == redis.Nil { // not exist
 		fmt.Println("CacheByRedis is nil:", key)
 		if dataStr, err = cacheHandle(); err != nil {
 			return "", err
