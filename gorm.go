@@ -2,18 +2,46 @@ package toolib
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func NewGormDataBase(addr, user, password, dbName string, maxOpenConn, maxIdleConn int) (*gorm.DB, error) {
-	const conn = "%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=true&loc=Local"
-	dataSource := fmt.Sprintf(conn, user, password, addr, dbName)
-	db, err := gorm.Open("mysql", dataSource)
+	conn := "%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf(conn, user, password, addr, dbName)
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("gorm open :%s", err)
+		return nil, fmt.Errorf("gorm open :%v", err)
 	}
-	db.DB().SetMaxOpenConns(maxOpenConn)
-	db.DB().SetMaxIdleConns(maxIdleConn)
+	db = db.Debug()
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("gorm db :%v", err)
+	}
+
+	sqlDB.SetMaxOpenConns(maxOpenConn)
+	sqlDB.SetMaxIdleConns(maxIdleConn)
+
+	return db, nil
+}
+
+func NewGormDB(addr, user, password, dbName string, maxOpenConn, maxIdleConn int) (*gorm.DB, error) {
+	conn := "%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf(conn, user, password, addr, dbName)
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("gorm open :%v", err)
+	}
+	db = db.Debug()
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("gorm db :%v", err)
+	}
+
+	sqlDB.SetMaxOpenConns(maxOpenConn)
+	sqlDB.SetMaxIdleConns(maxIdleConn)
+
 	return db, nil
 }
